@@ -8,6 +8,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     HOST: "https://maps.amsterdam.nl/open_geodata/geojson_lnglat.php?KAARTLAAG=VOGELS&THEMA=vogels",
+    birdsArr: [],
+    birdsGroupArr: [],
   },
 
   getters: {
@@ -19,6 +21,14 @@ export default new Vuex.Store({
       data[1].forEach((items) => {
         data[0].push(items)
       })
+    },
+
+    getBirds: (state) => {
+      return state.birdsArr
+    },
+
+    getGroupBirds: (state) => {
+      return state.birdsGroupArr
     }
   },
 
