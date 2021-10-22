@@ -6,9 +6,6 @@
        :attributionControl="false" 
        @load="onMapLoaded"
     >
-      <MglNavigationControl position="top-right" />
-      <MglGeolocateControl position="top-right" />
-
       <MglMarker 
         v-for='(bird, i) in birds[0]' 
         :key='i'
@@ -46,11 +43,12 @@
           :menu-props="{ maxHeight: '400' }"
           label="Select Bird"
           multiple
-          hint="Pick your favorite bird"
+          hint="Pick your favorite birds"
           persistent-hint
+          @change='getBirdData(), updateBirdsCount()'
         ></v-select>
         <!-- <label :for="b">{{b}}</label>
-        <input @change='getBirdData(), updateBirdsCount($event)'  type="checkbox" :id="b" class='checkbox' :value="b" v-model="birdsSelected"> -->
+        <input @change='getBirdData(), updateBirdsCount($event)' type="checkbox" :id="b" class='checkbox' :value="b" v-model="birdsSelected"> -->
       </div>
       <div class='total-by-bird'>
          <div 
@@ -72,39 +70,27 @@
 import Mapbox from "mapbox-gl";
 import { 
   MglMap, 
-  MglNavigationControl,
-  MglGeolocateControl,
   MglPopup,
   MglMarker 
   } from "vue-mapbox";
 import { mapGetters} from 'vuex'
-
 export default {
   name: "Home",
-
   components: {
     MglMap,
-    MglNavigationControl,
-    MglGeolocateControl,
     MglMarker,
     MglPopup
-    // MglAttributionControl,
-    // MglFullscreenControl,
-    // MglScaleControl
   },
-
   computed: {
     ...mapGetters({
        birds: 'getBirds',
        birdsGroup: 'getGroupBirds',
     }),
-
   },
-
   data() {
     return {
       // accessToken: process.env.MAPBOX_ACCES_TOKEN
-      accessToken: 'pk.eyJ1IjoieWFuaWNrMDA3IiwiYSI6ImNrdjFiaTJldTFnYmMyb3FxZTc0dXBqdHoifQ.vTnXbESZKw4K6nomP4zECA',
+      accessToken: process.env.VUE_APP_MAPBOX_ACCES_TOKEN,
       mapStyle: 'mapbox://styles/mapbox/light-v10',
       coordinates: [4.896029, 52.371807], //Amsterdam
       colors: {Boerenzwaluw: 'green',
@@ -119,44 +105,35 @@ export default {
        dataCount: 500,       
     }
   },
-
   created(){
     this.mapbox = Mapbox;
     this.getBirdData()
   },
   methods: {
     async onMapLoaded(event){
-      // this.map = e.map
-      // console.log(this.map);
       const asyncActions = event.component.actions
-
-      const newParams = await asyncActions.flyTo({
+      await asyncActions.flyTo({
         center: [4.896029, 52.371807],
         zoom: 9,
         speed: 1
       })
-      console.log(newParams);
-
+      // console.log(newParams);
     },
-
     removed(c){
       // console.log(m);
       console.log('coloor',c);
       // m.marker.remove()
     },
     groupBirds(birds){
-
       let group = birds.reduce((r, b) => {
         r[b.properties.Vogel] = [...r[b.properties.Vogel] || [], b];
         return r;
       }, {});
       return group
     },
-
      filterBirds(data){
       let filteredData = []
       let filterOptions = this.birdsSelected
-
        if (filterOptions.length == 0){
          // return all bird data
          filteredData = data
@@ -173,37 +150,30 @@ export default {
          })
          
        }
-
        return filteredData
     },
-
     getDictVal(dict, key){
       return dict[key]
     },
-
     birdsCount(dict, index){
       let count = this.getDictVal(dict, Object.keys(dict)[index])
       return count.length
     },
-
     updateBirdsCount(event){
       let currentBirdsCount = document.querySelector('.'+event.currentTarget.id)
-
-      document.querySelectorAll('.'+event.currentTarget.id).forEach(el => {
-        // if all checkbox elements are not checked, reset the birds count
-        if (this.birdsSelected.length == 0){
-          el.innerHTML = currentBirdsCount.id
-        }
-      })      
-
+      // document.querySelectorAll('.'+event.currentTarget.id).forEach(el => {
+      //   // if all checkbox elements are not checked, reset the birds count
+      //   if (this.birdsSelected.length == 0){
+      //     el.innerHTML = currentBirdsCount.id
+      //   }
+      // })      
       if(event.currentTarget.checked){
         currentBirdsCount.innerHTML = currentBirdsCount.id
       }
-      else if(!event.currentTarget.checked && this.birdsSelected.length != 0){
+      else {
         currentBirdsCount.innerHTML = 0
       }
     },
-
     getBirdData(){
         let self = this;
         let store = self.$store;
@@ -220,22 +190,19 @@ export default {
   
               store.getters["setData"]([store.state.birdsArr, [filteredBirds]]);
               store.getters["setData"]([store.state.birdsGroupArr, [birdsGroup]]);
-
               // console.log('bird data store', self.$store.state.birdsArr);
               // self.birds[0].forEach(i => {
               //   console.log('bird color', self.getDictVal(self.colors, i.properties.Vogel));
               // })
             },
         });
-        console.log('self.$store.state.totalBirdsData', self.$store.state.totalBirdsData)
+        // console.log('self.$store.state.totalBirdsData', self.$store.state.totalBirdsData)
     },
-
      updateDataCount(event){
       this.dataCount = event.currentTarget.value
       // refresh map
       this.getBirdData()
     },
-
   }
 };
 </script>
@@ -261,18 +228,21 @@ export default {
   .data-count{
     width: 30%;
     height: 30px;
+    border: 1px solid black;
     display: flex;
     justify-content: flex-start;
     align-items: center;
     margin-left: 20px;
   }
   .filter{
-    width: 100%;
+    width: 60%;
     height: auto;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
+    margin-bottom: 20px;
+    margin-top: 10px;
   }
   .total{
     width: 100%;
@@ -305,7 +275,7 @@ export default {
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    margin-bottom:-20px;
+    // margin-bottom:-20px;
   }
   .total-birds-show{
     width: 100%;
@@ -314,5 +284,4 @@ export default {
     justify-content: flex-start;
     align-items: center;
   }
-
 </style>
