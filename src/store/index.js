@@ -10,6 +10,7 @@ export default new Vuex.Store({
     HOST: "https://maps.amsterdam.nl/open_geodata/geojson_lnglat.php?KAARTLAAG=VOGELS&THEMA=vogels",
     birdsArr: [],
     birdsGroupArr: [],
+    totalBirdsData: 0,
   },
 
   getters: {

@@ -38,9 +38,19 @@
         > 
       </div>
       <h3>Filter</h3>
-      <div class='filter' v-for="(b, i) in Object.keys(birdsGroup[0])" :key='i'>
-        <label :for="b">{{b}}</label>
-        <input @change='getBirdData(), updateBirdsCount($event)' type="checkbox" :id="b" class='checkbox' :value="b" v-model="birdsSelected">
+      <!-- <div class='filter' v-for="(b, i) in Object.keys(birdsGroup[0])" :key='i'> -->
+      <div class='filter'>
+        <v-select
+          v-model="birdsSelected"
+          :items="Object.keys(birdsGroup[0])"
+          :menu-props="{ maxHeight: '400' }"
+          label="Select Bird"
+          multiple
+          hint="Pick your favorite bird"
+          persistent-hint
+        ></v-select>
+        <!-- <label :for="b">{{b}}</label>
+        <input @change='getBirdData(), updateBirdsCount($event)'  type="checkbox" :id="b" class='checkbox' :value="b" v-model="birdsSelected"> -->
       </div>
       <div class='total-by-bird'>
          <div 
@@ -222,9 +232,8 @@ export default {
 
      updateDataCount(event){
       this.dataCount = event.currentTarget.value
-      alert(this.dataCount)
       // refresh map
-      this.getBirdData
+      this.getBirdData()
     },
 
   }
